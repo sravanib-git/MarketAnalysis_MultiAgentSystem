@@ -1,0 +1,15 @@
+langchain
+langchain-core
+langchain-community
+langchain-openai
+langchain-tavily
+langgraph
+chromadb
+pypdf
+python-dotenv
+streamlit
+pydantic
+mlflow
+langchain-chroma
+langchain-text-splitters
+rank-bm25

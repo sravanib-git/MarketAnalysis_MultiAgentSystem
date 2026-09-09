@@ -1,0 +1,20 @@
+import os
+
+from dotenv import load_dotenv
+
+
+# Load variables from the .env file
+load_dotenv()
+
+
+AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
+AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")
+AZURE_OPENAI_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION")
+
+AZURE_OPENAI_CHAT_DEPLOYMENT = os.getenv(
+    "AZURE_OPENAI_CHAT_DEPLOYMENT"
+)
+
+AZURE_OPENAI_EMBEDDING_DEPLOYMENT = os.getenv(
+    "AZURE_OPENAI_EMBEDDING_DEPLOYMENT"
+)

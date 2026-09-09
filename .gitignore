@@ -1,0 +1,38 @@
+# Python virtual environment
+.venv/
+venv/
+env/
+
+# Environment variables and secrets
+.env
+.env.*
+!.env.example
+
+# Python cache
+__pycache__/
+*.py[cod]
+.pytest_cache/
+
+# IDE settings
+.vscode/
+
+# MLflow local files
+mlruns/
+mlartifacts/
+mlflow.db
+*.db
+
+# Generated reports
+data/reports/
+
+# Local vector databases
+data/vector_store/
+
+# Logs
+*.log
+
+# Operating-system files
+.DS_Store
+Thumbs.db
+# Generated root reports
+reports/

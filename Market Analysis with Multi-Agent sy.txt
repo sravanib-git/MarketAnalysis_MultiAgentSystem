@@ -1,0 +1,69 @@
+This is a Streamlit-based market-research system that produces evidence-grounded company analysis reports.
+At its core, a user asks something like “Compare Microsoft and NVIDIA revenue growth in FY2025.” The app gathers internal Microsoft evidence, current web evidence for named companies, asks Azure OpenAI to analyze the evidence, then drafts and saves a report.
+User question
+  → input guardrail
+  → Azure query analysis
+  → prior-report memory search
+  → company research
+      ├─ Microsoft: internal RAG + web research
+      └─ Other companies: web research
+  → evidence-based analysis
+  → report drafting
+  → output guardrail
+  → report, memory, and MLflow logging
+
+The key files are:
+- [`app.py`](C:/Users/HP/Desktop/MarketAnalysis_MultiAgentSystem/app.py)
+is the Streamlit UI: question box, run button, report display, and workflow details.
+
+- [`workflow.py`](C:/Users/HP/Desktop/MarketAnalysis_MultiAgentSystem/src/graph/workflow.py)
+is the real orchestration layer. It defines the LangGraph state, nodes, routing, report persistence, memory persistence, and MLflow tracking.
+
+- [`query_analyzer.py`](C:/Users/HP/Desktop/MarketAnalysis_MultiAgentSystem/src/graph/query_analyzer.py)
+uses Azure OpenAI to extract companies, intent, requested metrics, and fiscal year from natural language.
+
+- [`guardrails.py`](C:/Users/HP/Desktop/MarketAnalysis_MultiAgentSystem/src/guardrails/guardrails.py) 
+blocks empty, off-topic, prompt-injection, and investment-advice/prediction requests; it also rejects unusable reports.
+
+- [`retriever.py`](C:/Users/HP/Desktop/MarketAnalysis_MultiAgentSystem/src/rag/retriever.py) 
+performs the internal Microsoft-document retrieval. It combines vector similarity search, BM25 keyword search, reranking, and deduplication.
+
+- [`web_search_tool.py`](C:/Users/HP/Desktop/MarketAnalysis_MultiAgentSystem/src/tools/web_search_tool.py) 
+searches and scores financial sources, preferring official company/investor/SEC-style material.
+
+- [`general_web_search_tool.py`](C:/Users/HP/Desktop/MarketAnalysis_MultiAgentSystem/src/tools/general_web_search_tool.py) 
+supplements financial research with filtered general web results.
+
+- [`analysis_agent.py`](C:/Users/HP/Desktop/MarketAnalysis_MultiAgentSystem/src/graph/analysis_agent.py) 
+reasons over the collected evidence.
+
+- [`report_drafter.py`](C:/Users/HP/Desktop/MarketAnalysis_MultiAgentSystem/src/graph/report_drafter.py) 
+turns analysis into a concise report and instructs the model to stay within the supplied evidence.
+
+- [`memory_manager.py`](C:/Users/HP/Desktop/MarketAnalysis_MultiAgentSystem/src/memory/memory_manager.py) 
+stores previous analyses in SQLite and retrieves relevant prior context.
+
+
+The data layer is currently Microsoft-centric:
+- [`data/microsoft`](C:/Users/HP/Desktop/MarketAnalysis_MultiAgentSystem/data/microsoft) contains Microsoft FY2025 filings and annual-report PDFs.
+- [`data/vector_store`](C:/Users/HP/Desktop/MarketAnalysis_MultiAgentSystem/data/vector_store) is the persisted Chroma index built from those PDFs.
+- [`data/memory/market_memory.db`](C:/Users/HP/Desktop/MarketAnalysis_MultiAgentSystem/data/memory/market_memory.db) stores previous workflow outputs.
+- [`data/reports/market_analysis_report.txt`](C:/Users/HP/Desktop/MarketAnalysis_MultiAgentSystem/data/reports/market_analysis_report.txt) is overwritten with the newest generated report.
+- [`mlflow.db`](C:/Users/HP/Desktop/MarketAnalysis_MultiAgentSystem/mlflow.db) stores observability data: prompts, workflow metadata, metrics, and artifacts.
+
+
+The [`Market Analysis with Multi-Agent sy.txt`](C:/Users/HP/Desktop/MarketAnalysis_MultiAgentSystem/Market Analysis with Multi-Agent sy.txt) file is a design/history note. It describes the intended architecture and RAG ideas; it is not executed by the app.
+A few practical observations:
+- “Multi-agent” here means a staged workflow of specialized LLM roles, not separate independently running services.
+- Microsoft is the only company with internal RAG enabled. Other companies depend on Tavily web search.
+- The system is intentionally cautious: if evidence for a comparison is missing, it should say so rather than invent figures.
+- [`reports`](C:/Users/HP/Desktop/MarketAnalysis_MultiAgentSystem/reports) holds example historical outputs.
+- [`tests`](C:/Users/HP/Desktop/MarketAnalysis_MultiAgentSystem/tests) contains manual/smoke-style checks for the active pieces.
+- data/evaluation/ragas_dataset.json remains as evaluation data, but the old RAGAS evaluator was removed during cleanup, so it is not currently wired into the active application.
+- src/agents, src/generation, and evaluation are now empty legacy directories and can be deleted later if you want a purely tidy directory tree.
+
+.\.venv\Scripts\Activate.ps1
+
+python -m streamlit run app.py
+
+mlflow ui --backend-store-uri sqlite:///mlflow.db
